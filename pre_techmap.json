@@ -1,0 +1,106 @@
+{
+  "creator": "Yosys 0.37 (git sha1 a5c7f69ed8f, gcc 13.2.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -Os)",
+  "modules": {
+    "test": {
+      "attributes": {
+        "src": "test.v:13.1-20.10"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2, 3 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 4, 5 ]
+        },
+        "y": {
+          "direction": "output",
+          "bits": [ 6, 7, 8 ]
+        }
+      },
+      "cells": {
+        "$abc$126$auto$blifparse.cc:509:parse_blif$127": {
+          "hide_name": 1,
+          "type": "$sop",
+          "parameters": {
+            "DEPTH": "00000000000000000000000000000011",
+            "TABLE": "101010001010001000001010",
+            "WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 5, 2, 4 ],
+            "Y": [ 8 ]
+          }
+        },
+        "$abc$126$auto$blifparse.cc:509:parse_blif$128": {
+          "hide_name": 1,
+          "type": "$sop",
+          "parameters": {
+            "DEPTH": "00000000000000000000000000000110",
+            "TABLE": "011001100110100110101010101001010001011000011001",
+            "WIDTH": "00000000000000000000000000000100"
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3, 5, 2, 4 ],
+            "Y": [ 7 ]
+          }
+        },
+        "$abc$126$auto$blifparse.cc:509:parse_blif$129": {
+          "hide_name": 1,
+          "type": "$sop",
+          "parameters": {
+            "DEPTH": "00000000000000000000000000000010",
+            "TABLE": "01101001",
+            "WIDTH": "00000000000000000000000000000010"
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 4 ],
+            "Y": [ 6 ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2, 3 ],
+          "attributes": {
+            "src": "test.v:14.14-14.15"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 4, 5 ],
+          "attributes": {
+            "src": "test.v:14.17-14.18"
+          }
+        },
+        "y": {
+          "hide_name": 0,
+          "bits": [ 6, 7, 8 ],
+          "attributes": {
+            "src": "test.v:15.15-15.16"
+          }
+        }
+      }
+    }
+  }
+}

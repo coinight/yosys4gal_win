@@ -1,0 +1,53 @@
+## Read Verilog
+read_verilog test.v
+hierarchy -auto-top
+
+## First pass synthesis
+synth
+design -save preop
+
+## DFF/SOP mapping
+dfflibmap -liberty gal_dff.lib
+abc -sop -I 8 -P 256
+opt
+clean -purge
+
+## Tech mapping
+techmap -map pla.v -D PLA_MAX_PRODUCTS=2
+extract -map macrocell.v -constports
+
+clean -purge
+
+## Write output files and graph
+write_verilog test_synth.v
+write_json test_synth.json
+write_table test_synth.txt
+write_blif test_synth.blif
+write_rtlil test_synth.rtlil
+
+show -width -signed -enum
+
+## Verify equivalence
+# Backup and make gold and gate modules
+design -stash postop
+design -copy-from preop -as gold A:top
+design -copy-from postop -as gate A:top
+
+# Reverse tech map into primatives
+#chtype -map GAL_SOP $sop gate
+#chtype -map DFF_P $_DFF_P_
+techmap -map inv_techmap.v
+
+# Verify
+equiv_make gold gate equiv
+equiv_induct equiv
+equiv_simple equiv
+
+# Restore backup
+design -load postop
+
+## Print final stats
+ltp -noff
+stat
+
+shell

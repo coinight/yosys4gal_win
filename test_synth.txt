@@ -1,0 +1,84 @@
+test	clk	-	-	pi	\clk
+test	counter	-	-	po	\counter
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [3:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.partial \counter [3:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.partial \counter [3:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$242.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$243
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [4:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.partial \counter [4:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.partial \counter [4:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.partial \counter [4:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$245.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$246
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [5:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.partial \counter [5:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.partial \counter [5:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.partial \counter [5:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.partial \counter [5:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$248.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$249
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.partial \counter [6:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$251.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$252
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.partial $abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.partial \counter [7:2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$254.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$255
+test	$abc$241$auto$blifparse.cc:509:parse_blif$257	GAL_SOP	A	unknown	{ \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$257	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$258
+test	$abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.sop_partial	GAL_SOP	A	unknown	{ \counter [2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.sop_partial	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.partial
+test	$abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.sop_rest	GAL_SOP	A	unknown	{ $abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.partial \counter [2] \counter [0] \counter [1] }
+test	$abc$241$auto$blifparse.cc:509:parse_blif$260.genblk1.sop_rest	GAL_SOP	Y	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$261
+test	$abc$241$auto$blifparse.cc:509:parse_blif$263	GAL_SOP	A	unknown	\counter [0]
+test	$abc$241$auto$blifparse.cc:509:parse_blif$263	GAL_SOP	Y	unknown	$auto$alumacc.cc:485:replace_alu$4.Y [0]
+test	$auto$ff.cc:266:slice$89	DFF_P	C	unknown	\clk
+test	$auto$ff.cc:266:slice$89	DFF_P	D	unknown	$auto$alumacc.cc:485:replace_alu$4.Y [0]
+test	$auto$ff.cc:266:slice$89	DFF_P	Q	unknown	\counter [0]
+test	$extract$\NDFF_P$316	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$316	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$258
+test	$extract$\NDFF_P$316	NDFF_P	Q	unknown	\counter [1]
+test	$extract$\NDFF_P$317	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$317	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$261
+test	$extract$\NDFF_P$317	NDFF_P	Q	unknown	\counter [2]
+test	$extract$\NDFF_P$318	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$318	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$243
+test	$extract$\NDFF_P$318	NDFF_P	Q	unknown	\counter [3]
+test	$extract$\NDFF_P$319	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$319	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$246
+test	$extract$\NDFF_P$319	NDFF_P	Q	unknown	\counter [4]
+test	$extract$\NDFF_P$320	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$320	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$249
+test	$extract$\NDFF_P$320	NDFF_P	Q	unknown	\counter [5]
+test	$extract$\NDFF_P$321	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$321	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$252
+test	$extract$\NDFF_P$321	NDFF_P	Q	unknown	\counter [6]
+test	$extract$\NDFF_P$322	NDFF_P	C	unknown	\clk
+test	$extract$\NDFF_P$322	NDFF_P	D	unknown	$abc$241$auto$blifparse.cc:576:parse_blif$255
+test	$extract$\NDFF_P$322	NDFF_P	Q	unknown	\counter [7]
