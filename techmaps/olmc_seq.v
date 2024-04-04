@@ -9,8 +9,27 @@ module _80_REG_OUT_P (C, A, Y);
 			.INVERTED(1'b0)
 		) _TECHMAP_REPLACE_ (
 			.C(C),
+			.E(1'b1),
 			.A(A),
 			.Y(Y)
+		);
+	endgenerate
+endmodule
+
+(* techmap_celltype = "DFF_P" *)
+module _80_DFF_P (C, D, Q);
+	input C, D;
+	output Q;
+
+	generate
+		GAL_OLMC #(
+			.REGISTERED(1'b1),
+			.INVERTED(1'b0)
+		) _TECHMAP_REPLACE_ (
+			.C(C),
+			.E(1'b1),
+			.A(D),
+			.Y(Q)
 		);
 	endgenerate
 endmodule
@@ -26,8 +45,27 @@ module _81_REG_OUT_N (C, A, Y);
 			.INVERTED(1'b1)
 		) _TECHMAP_REPLACE_ (
 			.C(C),
+			.E(1'b1),
 			.A(A),
 			.Y(Y)
+		);
+	endgenerate
+endmodule
+
+(* techmap_celltype = "NDFF_P" *)
+module _81_NDFF_P (C, D, Q);
+	input C, D;
+	output Q;
+
+	generate
+		GAL_OLMC #(
+			.REGISTERED(1'b1),
+			.INVERTED(1'b1)
+		) _TECHMAP_REPLACE_ (
+			.C(C),
+			.E(1'b1),
+			.A(D),
+			.Y(Q)
 		);
 	endgenerate
 endmodule
@@ -37,20 +75,4 @@ module _82_GAL_OUTPUT (A);
 	input A;
 
 	// Delete
-endmodule
-
-(* techmap_celltype = "GAL_COMB_OUTPUT_P" *)
-module _82_GAL_COMB_OUTPUT_P (A, Y);
-	input A, Y;
-
-	generate
-		GAL_OLMC #(
-			.REGISTERED(1'b0),
-			.INVERTED(1'b0)
-		) _TECHMAP_REPLACE_ (
-			.C(1'bX),
-			.A(A),
-			.Y(Y)
-		);
-	endgenerate
 endmodule

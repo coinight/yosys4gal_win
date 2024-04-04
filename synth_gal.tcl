@@ -62,7 +62,7 @@ techmap -map techmaps/pla.v -D PLA_MAX_PRODUCTS=10000
 # Sequential OLMC 
 extract -map extractions/ndff.v
 extract -constports -map extractions/olmc.v
-techmap -map techmaps/olmc.v o:* %x o:* %d
+techmap -map techmaps/olmc_seq.v
 
 # Combinational OLMC
 iopadmap -bits -outpad GAL_COMB_OUTPUT_P A:Y */t:GAL_SOP "%x:+\[Y\]" */t:GAL_SOP %d o:* %i

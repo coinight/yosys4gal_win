@@ -8,6 +8,7 @@ module _80_GAL_COMB_OUTPUT_P (A, Y);
 			.INVERTED(1'b0)
 		) _TECHMAP_REPLACE_ (
 			.C(1'bX),
+			.E(1'b1),
 			.A(A),
 			.Y(Y)
 		);
@@ -24,6 +25,7 @@ module _80_NOT (A, Y);
 			.INVERTED(1'b1)
 		) _TECHMAP_REPLACE_ (
 			.C(1'bX),
+			.E(1'b1),
 			.A(A),
 			.Y(Y)
 		);
