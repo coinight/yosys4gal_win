@@ -40,7 +40,7 @@ if {$num_regs > 0} { set num_inputs_regs [expr $num_inputs_regs - 1] }
 #abc -sop -I 8 -P 8
 #abc -script "+strash;,dretime;,collapse;,write_pla,test.pla" -sop
 # Force one-level SOP
-abc -script "abc.script" -sop
+#abc -script "abc.script" -sop
 
 # Resynth all too big SOPs together in multi-level SOP
 #select "t:\$sop" r:DEPTH>8 %i
@@ -48,25 +48,28 @@ abc -script "abc.script" -sop
 #yosys proc
 #techmap
 #select *
-#abc -sop -I $num_inputs_regs -P 8
+abc -sop -I $num_inputs_regs -P 7
 
 opt
 clean -purge
 
-show -width
+#show -width
 
 ## Tech mapping
-# Logic
-techmap -map techmaps/pla.v -D PLA_MAX_PRODUCTS=10000
+# PLAs
+techmap -map techmaps/pla.v -D PLA_MAX_PRODUCTS=7
 
 # Sequential OLMC 
-extract -map extractions/ndff.v
+extract -constports -map extractions/ndff.v
 extract -constports -map extractions/olmc.v
 techmap -map techmaps/olmc_seq.v
 
 # Combinational OLMC
 iopadmap -bits -outpad GAL_COMB_OUTPUT_P A:Y */t:GAL_SOP "%x:+\[Y\]" */t:GAL_SOP %d o:* %i
 techmap -map techmaps/olmc_comb.v o:* %x o:* %d
+
+# Add OLMC for internal GAL_SOPs
+techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_OLMC %ci2 */t:GAL_SOP %i */t:GAL_SOP %D
 
 clean -purge
 
