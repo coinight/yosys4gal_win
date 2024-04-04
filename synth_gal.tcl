@@ -1,18 +1,8 @@
 #!/usr/bin/env -S yosys -c
 yosys -import
 
-set target "GAL16V8"
-
-if {$target == "GAL16V8"} {
-	set num_max_products 7
-} elseif {$target == "GAL22V10"} {
-	set num_max_products 11
-} else {
-	puts "Invalid target chip"
-	exit
-}
-
-if { $argc != 1 } {
+## Check arguments
+if { $argc != 1 && $argc != 2 } {
 	puts "USAGE: $argv0 -- <VERILOG FILE>"
 	exit
 }
@@ -22,6 +12,17 @@ puts $fbasename
 
 exec rm -rf output
 exec mkdir output
+
+## Set target chip (default to GAL16V8)
+set target [expr {$argc == 2 ? [lindex $argv 1] : "GAL16V8"}]
+if {$target == "GAL16V8"} {
+	set num_max_products 7
+} elseif {$target == "GAL22V10"} {
+	set num_max_products 11
+} else {
+	puts "Invalid target chip: GAL16V8 and GAL22V10 available"
+	exit
+}
 
 ## Read Verilog/Liberty file
 read_verilog [lindex $argv 0]
@@ -47,8 +48,6 @@ set num_regs [regexp -inline {\d+} [tee -s result.string select -count t:DFF_P]]
 set num_inputs_regs [expr $num_inputs + $num_regs]
 if {$num_regs > 0} { set num_inputs_regs [expr $num_inputs_regs - 1] }
 
-#abc -sop -I $num_inputs_regs -P 256
-#abc -sop -I 8 -P 8
 #abc -script "+strash;,dretime;,collapse;,write_pla,test.pla" -sop
 # Force one-level SOP
 #abc -script "abc.script" -sop
@@ -60,13 +59,10 @@ if {$num_regs > 0} { set num_inputs_regs [expr $num_inputs_regs - 1] }
 #techmap
 #select *
 
-#abc -sop -I 100 -P $num_max_products
 abc -sop -I $num_inputs_regs -P $num_max_products
 
 opt
 clean -purge
-
-#show -width
 
 ## Tech mapping
 # PLAs
@@ -88,12 +84,9 @@ techmap -map techmaps/olmc_comb.v
 
 clean -purge
 
-## Write output files and graph
+## Write output files
 write_verilog "output/synth_${fbasename}.v"
 write_json "output/synth_${fbasename}.json"
-write_table "output/synth_${fbasename}.txt"
-write_blif "output/synth_${fbasename}.blif"
-write_rtlil "output/synth_${fbasename}.rtlil"
 
 ## Verify equivalence
 # Backup and make gold and gate modules
@@ -102,7 +95,7 @@ design -copy-from preop -as gold A:top
 design -copy-from postop -as gate A:top
 
 # Inverse tech map into primatives
-techmap -autoproc -map cells_sim.v -autoproc
+techmap -autoproc -map cells_sim.v
 clean -purge
 
 # Verify
@@ -117,9 +110,8 @@ ltp -noff
 # Restore backup
 design -load postop
 
-## Print final stats
+## Print final stats and show graph
 show -width -signed -enum
-
 stat
 
 shell
