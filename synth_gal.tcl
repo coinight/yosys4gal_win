@@ -1,6 +1,17 @@
 #!/usr/bin/env -S yosys -c
 yosys -import
 
+set target "GAL16V8"
+
+if {$target == "GAL16V8"} {
+	set num_max_products 7
+} elseif {$target == "GAL22V10"} {
+	set num_max_products 11
+} else {
+	puts "Invalid target chip"
+	exit
+}
+
 if { $argc != 1 } {
 	puts "USAGE: $argv0 -- <VERILOG FILE>"
 	exit
@@ -48,7 +59,9 @@ if {$num_regs > 0} { set num_inputs_regs [expr $num_inputs_regs - 1] }
 #yosys proc
 #techmap
 #select *
-abc -sop -I $num_inputs_regs -P 7
+
+#abc -sop -I 100 -P $num_max_products
+abc -sop -I $num_inputs_regs -P $num_max_products
 
 opt
 clean -purge
@@ -57,19 +70,21 @@ clean -purge
 
 ## Tech mapping
 # PLAs
-techmap -map techmaps/pla.v -D PLA_MAX_PRODUCTS=7
+techmap -map techmaps/pla.v -D PLA_MAX_PRODUCTS=$num_max_products
+techmap -max_iter 1 -map techmaps/trivial_sop.v
 
 # Sequential OLMC 
 extract -constports -map extractions/ndff.v
 extract -constports -map extractions/olmc.v
 techmap -map techmaps/olmc_seq.v
 
+# Add OLMC for internal GAL_SOPs
+#techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_OLMC %ci2 */t:GAL_SOP %i */t:GAL_SOP %D
+techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_SOP %co1 */w:* %i */t:GAL_SOP %ci1 */w:* %i %i %c %ci1 %D
+
 # Combinational OLMC
 iopadmap -bits -outpad GAL_COMB_OUTPUT_P A:Y */t:GAL_SOP "%x:+\[Y\]" */t:GAL_SOP %d o:* %i
-techmap -map techmaps/olmc_comb.v o:* %x o:* %d
-
-# Add OLMC for internal GAL_SOPs
-techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_OLMC %ci2 */t:GAL_SOP %i */t:GAL_SOP %D
+techmap -map techmaps/olmc_comb.v
 
 clean -purge
 
