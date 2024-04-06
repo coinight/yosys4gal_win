@@ -76,7 +76,6 @@ techmap -map techmaps/olmc_seq.v
 # Make 1SOPs for combinational tristates
 techmap -max_iter 1 -map techmaps/one_sop.v */t:GAL_TRI "%x:+\[E\]" */t:GAL_TRI %d %ci1 */t:GAL_SOP %i
 techmap -max_iter 1 -map techmaps/one_sop.v */t:GAL_TRI_N "%x:+\[E\]" */t:GAL_TRI_N %d %ci1 */t:GAL_SOP %i
-shell
 
 # Add OLMC for internal GAL_SOPs
 #techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_OLMC %ci2 */t:GAL_SOP %i */t:GAL_SOP %D
