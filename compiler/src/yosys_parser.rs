@@ -188,7 +188,7 @@ pub enum PortDirection {
 /// NamedPort is our internal representation of a port.
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct NamedPort {
-    name: String,
+    pub name: String,
     net: Net,
     direction: PortDirection,
 }
@@ -221,16 +221,16 @@ impl NamedPort {
         }
     }
     /// Retrieves the port mapping for this port, given a PCF file.
-    pub fn lookup(&self, pcf: &PcfFile) -> u32 {
+    pub fn lookup(&self, pcf: &PcfFile) -> Option<u32> {
         //NOTE: since NamedPort is exactly (1) pin, we always use the pin case.
         // When constructing, if we have a port with multiple bits, we split it (see `new_split`)
-        pcf.pin(&self.name).expect("missing constraint")
+        pcf.pin(&self.name)
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct NetAdjPair {
-    net: Net,
+    pub net: Net,
     idx1: usize,
     port1: String,
     port2: String,
@@ -267,11 +267,20 @@ impl PartialEq for NetAdjPair {
 impl Eq for NetAdjPair {}
 
 impl NetAdjPair {
-    fn uses_net(&self, net: &Net) -> bool {
+    pub fn uses_net(&self, net: &Net) -> bool {
         net == &self.net
     }
-    fn uses_nodeport(&self, idx: usize, port: &str) -> bool {
-        self.idx1 == idx && self.port1 == port || self.idx2 == idx && self.port2 == port
+    pub fn uses_nodeport(&self, idx: usize, port: &str) -> bool {
+        (self.idx1 == idx && self.port1 == port) || (self.idx2 == idx && self.port2 == port)
+    }
+    pub fn get_other(&self, my_idx: usize) -> (usize, &str) {
+        if my_idx == self.idx1 {
+            (self.idx2, &self.port2)
+        } else if my_idx == self.idx2 {
+            (self.idx1, &self.port1)
+        } else {
+            (usize::MAX, "")
+        }
     }
 }
 
@@ -303,14 +312,14 @@ impl Node {
     //         Self::Olmc(go) => go.connections.input.to_vec(),
     //     }
     // }
-    fn get_ports(&self) -> Iter<'_, String, Vec<Net>> {
+    pub fn get_ports(&self) -> HashMap<String, Vec<Net>> {
         match self {
-            Self::Olmc(ol) => ol.connections.iter(),
-            Self::Input(i) => i.connections.iter(),
-            Self::Sop(s) => s.connections.iter(),
+            Self::Olmc(ol) => ol.connections.clone(),
+            Self::Input(i) => i.connections.clone(),
+            Self::Sop(s) => s.connections.clone(),
         }
     }
-    fn port_for_net(&self, net: &Net) -> Option<String> {
+    pub fn port_for_net(&self, net: &Net) -> Option<String> {
         for (port, nets) in self.get_ports() {
             if nets.contains(net) {
                 return Some(port.to_string());
@@ -318,8 +327,9 @@ impl Node {
         }
         None
     }
-    fn get_nets(&self) -> Vec<Net> {
+    pub fn get_nets(&self) -> Vec<Net> {
         self.get_ports()
+            .iter()
             .flat_map(|(_, nets)| nets.clone())
             .collect()
     }
@@ -387,9 +397,51 @@ impl Graph {
         }
         res
     }
-    /// find the port that uses the current net, if any
-    fn find_port(&self, net: &Net) -> Option<&NamedPort> {
-        self.ports.iter().find(|p| p.net == *net)
+
+    /// Retrieve a node from the node index
+    /// TODO: make a newtype for the index.
+    pub fn get_node(&self, idx: usize) -> Option<&Node> {
+        self.nodelist.get(idx)
+    }
+
+    // find the connections from the given node/port
+    pub fn get_node_port_conns(&self, nodeidx: usize, port: &str) -> Vec<&NetAdjPair> {
+        self.adjlist
+            .iter()
+            .filter(|adj| adj.uses_nodeport(nodeidx, port))
+            .collect()
+    }
+
+    // TODO: get rid of this or refactor somehow?????
+    // VERY BAD
+    pub fn get_olmc_idx(&self) -> Vec<usize> {
+        self.nodelist
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, node)| match node {
+                Node::Olmc(_) => Some(idx),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// find the port that uses the current net, if any.
+    /// Ports are the input/output of a module. They are handled separately.
+    pub fn find_port(&self, net: &Net) -> Option<&NamedPort> {
+        match net {
+            Net::N(_) => self.ports.iter().find(|p| p.net == *net),
+            _ => None,
+        }
+    }
+
+    pub fn get_olmc(&self) -> Vec<&Node> {
+        self.nodelist
+            .iter()
+            .filter_map(|node| match node {
+                Node::Olmc(_) => Some(node),
+                _ => None,
+            })
+            .collect()
     }
 
     /// Validate that the graph has valid invariants.
@@ -397,12 +449,11 @@ impl Graph {
     /// by the yosys script is what we expected. Mainly a tool for debugging the Yosys outputs.
     pub fn validate(&self) -> Result<(), &str> {
         info!("Checking OLMC blocks");
-        let all_olmc = self.nodelist.iter().filter_map(|node| match node {
+        let olmc = self.nodelist.iter().filter_map(|node| match node {
             Node::Olmc(o) => Some(o),
             _ => None,
         });
-
-        let olmc_clock = all_olmc.filter_map(|o| o.connections.get("C"));
+        let olmc_clock = olmc.filter_map(|o| o.connections.get("C"));
         let test = olmc_clock.clone().all(|v| v.len() == 1);
         if !test {
             return Err("OLMC has more than one clock input!");
@@ -415,7 +466,8 @@ impl Graph {
         if !test {
             return Err("invalid clock pin");
         }
-        // for the ones connected to a net, extract the net nubmer and Vec it.
+        // for the ones connected to a net, extract the net number so we can make sure they're all
+        // the same clock.
         let olmc_clocked: Vec<u32> = olmc_clock
             .clone()
             .flatten()
