@@ -1,5 +1,5 @@
 use crate::pcf::PcfFile;
-use crate::yosys_parser::{GalOLMC, GalSop, Graph, NamedPort, Net, Node};
+use crate::yosys_parser::{GalOLMC, GalSop, Graph, NamedPort, Net, Node, NodeIdx};
 use galette::blueprint::Blueprint;
 use galette::chips::Chip;
 use log::info;
@@ -26,10 +26,10 @@ pub enum MappingError {
 // attempt to map graph into blueprint
 
 /// Acquire the SOP associated with the OLMC. If it's 
-fn get_sop_for_olmc(graph: &Graph, olmc_idx: usize) -> Result<GalSop, MappingError> {
+fn get_sop_for_olmc(graph: &Graph, olmc_idx: NodeIdx) -> Result<GalSop, MappingError> {
     let input = graph.get_node_port_conns(olmc_idx, "A");
     assert_eq!(input.len(), 1, "OLMC input should have one netadjpair");
-    let other_node = input[0].get_other(olmc_idx);
+    let other_node = input[0].get_other(olmc_idx).ok_or(MappingError::Unknown)?;
     let sop = graph
         .get_node(other_node.0)
         .ok_or(MappingError::MissingSOP)?;
@@ -40,7 +40,7 @@ fn get_sop_for_olmc(graph: &Graph, olmc_idx: usize) -> Result<GalSop, MappingErr
     }
 }
 
-fn map_remaining_olcm(graph: &Graph, olmc: usize, unused: Vec<(usize, usize)>) -> Result<usize, MappingError> {
+fn map_remaining_olcm(graph: &Graph, olmc: NodeIdx, unused: Vec<(usize, usize)>) -> Result<usize, MappingError> {
     // (index, size)
     let mut chosen_row: Option<(usize, usize)> = None;
     // FIXME: implement.
@@ -64,7 +64,7 @@ fn map_remaining_olcm(graph: &Graph, olmc: usize, unused: Vec<(usize, usize)>) -
     // at the end, if we have chosen a row, we can swap it in.
     match chosen_row {
         Some((row, size)) => {
-            info!("mapping {olmc} size {sopsize} to row {row} with size {size}");
+            info!("mapping {olmc:?} size {sopsize} to row {row} with size {size}");
             Ok(row)
         },
         None => {
@@ -73,8 +73,6 @@ fn map_remaining_olcm(graph: &Graph, olmc: usize, unused: Vec<(usize, usize)>) -
     } 
 }
 
-#[derive(Debug, Clone)]
-struct GALMapEntry(GalOLMC, usize); // data and the entry in the graph
 
 pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<Blueprint> {
     let mut bp = Blueprint::new(chip);
@@ -82,9 +80,9 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
     // phase one: OLMC mapping
     // start by finding the constraints.
     //
-    let mut olmcmap: Vec<Option<usize>> = vec![None; chip.num_olmcs()];
+    let mut olmcmap: Vec<Option<NodeIdx>> = vec![None; chip.num_olmcs()];
 
-    let mut deferrals: Vec<usize> = Vec::new();
+    let mut deferrals: Vec<NodeIdx> = Vec::new();
 
     // For all the OLMCs in the graph, we either map it directly since it's constrained to a pin,
     // or we defer it to later.
@@ -110,11 +108,11 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                     .pin_to_olmc(pin.try_into()?)
                     .ok_or(MappingError::Unknown)?;
                 // TODO: check size of row vs size of SOP
-                info!("Found a real pin to map: Mapping node {o} onto row {olmc_row}");
+                info!("Found a real pin to map: Mapping node {o:?} onto row {olmc_row}");
                 olmcmap[olmc_row] = Some(o);
             }
             None => {
-                info!("No port found, deferring placement for {o}");
+                info!("No port found, deferring placement for {o:?}");
                 deferrals.push(o)
             }
         }

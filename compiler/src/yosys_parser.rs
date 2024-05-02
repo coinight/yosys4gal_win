@@ -1,10 +1,8 @@
 use crate::pcf::PcfFile;
 use galette::gal::Pin;
-use log::error;
 use log::info;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use serde_with::{serde_as, BoolFromInt};
-use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 use std::str;
 
@@ -228,13 +226,18 @@ impl NamedPort {
     }
 }
 
+/// NodeIdx is an index into the node list to reference a specific node.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct NodeIdx(usize);
+
+
 #[derive(Debug, Clone)]
 pub struct NetAdjPair {
     pub net: Net,
-    idx1: usize,
+    idx1: NodeIdx,
     port1: String,
     port2: String,
-    idx2: usize,
+    idx2: NodeIdx,
 }
 
 impl PartialEq for NetAdjPair {
@@ -270,21 +273,23 @@ impl NetAdjPair {
     pub fn uses_net(&self, net: &Net) -> bool {
         net == &self.net
     }
-    pub fn uses_nodeport(&self, idx: usize, port: &str) -> bool {
+    pub fn uses_nodeport(&self, idx: NodeIdx, port: &str) -> bool {
         (self.idx1 == idx && self.port1 == port) || (self.idx2 == idx && self.port2 == port)
     }
-    pub fn get_other(&self, my_idx: usize) -> (usize, &str) {
+    pub fn get_other(&self, my_idx: NodeIdx) -> Option<(NodeIdx, &str)> {
         if my_idx == self.idx1 {
-            (self.idx2, &self.port2)
+            Some((self.idx2, &self.port2))
         } else if my_idx == self.idx2 {
-            (self.idx1, &self.port1)
+            Some((self.idx1, &self.port1))
         } else {
-            (usize::MAX, "")
+            None
         }
     }
 }
 
-/// A Node is an entry in our graph. A node has inputs and outputs.
+/// A Node is an entry in our graph. A node has a set of connections that can be
+/// read with `get_ports`. You can also see if a node accesses a given net with
+/// `port_for_net`
 #[derive(Debug, PartialEq, Clone)]
 pub enum Node {
     Input(GalInput),
@@ -312,23 +317,29 @@ impl Node {
     //         Self::Olmc(go) => go.connections.input.to_vec(),
     //     }
     // }
-    pub fn get_ports(&self) -> HashMap<String, Vec<Net>> {
+
+    // Returns the hashmap of String (connection name) to a list of nets.
+    pub fn get_connections(&self) -> HashMap<String, Vec<Net>> {
         match self {
             Self::Olmc(ol) => ol.connections.clone(),
             Self::Input(i) => i.connections.clone(),
             Self::Sop(s) => s.connections.clone(),
         }
     }
+
+    /// Returns the connection that contains this net, if any.
     pub fn port_for_net(&self, net: &Net) -> Option<String> {
-        for (port, nets) in self.get_ports() {
+        for (port, nets) in self.get_connections() {
             if nets.contains(net) {
                 return Some(port.to_string());
             }
         }
         None
     }
+
+    /// Get every net that this node uses.
     pub fn get_nets(&self) -> Vec<Net> {
-        self.get_ports()
+        self.get_connections()
             .iter()
             .flat_map(|(_, nets)| nets.clone())
             .collect()
@@ -373,8 +384,8 @@ impl Graph {
                     let node2_port = node2.port_for_net(&net).expect("how");
                     let adj = NetAdjPair {
                         net: net.clone(),
-                        idx1,
-                        idx2,
+                        idx1: NodeIdx(idx1),
+                        idx2: NodeIdx(idx2),
                         port1: node1_port,
                         port2: node2_port,
                     };
@@ -388,11 +399,11 @@ impl Graph {
     }
     /// Find all nodes that are attached to this net in any way.
     /// Note that this is an expensive operation since it can't currently use the adjlist.
-    pub fn find_nodes(&self, net: &Net) -> Vec<usize> {
+    pub fn find_nodes_on_net(&self, net: &Net) -> Vec<NodeIdx> {
         let mut res = Vec::new();
         for (idx, node) in self.nodelist.iter().enumerate() {
             if node.get_nets().contains(net) {
-                res.push(idx);
+                res.push(NodeIdx(idx));
             }
         }
         res
@@ -400,12 +411,12 @@ impl Graph {
 
     /// Retrieve a node from the node index
     /// TODO: make a newtype for the index.
-    pub fn get_node(&self, idx: usize) -> Option<&Node> {
-        self.nodelist.get(idx)
+    pub fn get_node(&self, idx: NodeIdx) -> Option<&Node> {
+        self.nodelist.get(idx.0)
     }
 
     // find the connections from the given node/port
-    pub fn get_node_port_conns(&self, nodeidx: usize, port: &str) -> Vec<&NetAdjPair> {
+    pub fn get_node_port_conns(&self, nodeidx: NodeIdx, port: &str) -> Vec<&NetAdjPair> {
         self.adjlist
             .iter()
             .filter(|adj| adj.uses_nodeport(nodeidx, port))
@@ -414,12 +425,12 @@ impl Graph {
 
     // TODO: get rid of this or refactor somehow?????
     // VERY BAD
-    pub fn get_olmc_idx(&self) -> Vec<usize> {
+    pub fn get_olmc_idx(&self) -> Vec<NodeIdx> {
         self.nodelist
             .iter()
             .enumerate()
             .filter_map(|(idx, node)| match node {
-                Node::Olmc(_) => Some(idx),
+                Node::Olmc(_) => Some(NodeIdx(idx)),
                 _ => None,
             })
             .collect()
