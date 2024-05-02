@@ -64,9 +64,9 @@ pub struct GalSop {
 #[serde(rename_all = "UPPERCASE")]
 pub struct GALOLMCParameters {
     #[serde(deserialize_with = "bool_from_binstr")]
-    inverted: bool,
+    pub inverted: bool,
     #[serde(deserialize_with = "bool_from_binstr")]
-    registered: bool,
+    pub registered: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -187,8 +187,8 @@ pub enum PortDirection {
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct NamedPort {
     pub name: String,
-    net: Net,
-    direction: PortDirection,
+    pub net: Net,
+    pub direction: PortDirection,
 }
 
 use std::cmp::Ordering;
@@ -228,7 +228,7 @@ impl NamedPort {
 
 /// NodeIdx is an index into the node list to reference a specific node.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct NodeIdx(usize);
+pub struct NodeIdx(pub usize);
 
 
 #[derive(Debug, Clone)]
