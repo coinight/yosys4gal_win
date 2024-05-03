@@ -171,7 +171,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
         .iter()
         .enumerate() // get the index
         .filter_map(|(i, x)| if x.is_none() { Some(i) } else { None }) // find the ones that are
-        .map(|i| (i, chip.num_rows_for_olmc(i)))
+        .map(|i| (i, chip.num_rows_for_olmc(i))) // get the size of the row
         .collect();
 
     // find the smallest row that fits.
@@ -185,6 +185,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
     }
 
     // at this point, we have mapped every OLMC.
+    // now use the blueprint to set the settings.
 
     Ok(bp)
 }

@@ -303,21 +303,6 @@ impl Node {
      * internally. So get_outputs returns values on input_cells, since those are driven already.
      * Likewise we reverse this for get_inputs, since the chip's outputs are our inputs.
      */
-    // fn get_outputs(&self) -> Vec<Net> {
-    //     match self {
-    //         Self::Input(i) => i.connections.output.to_vec(),
-    //         Self::Sop(s) => s.connections.output.to_vec(),
-    //         Self::Olmc(o) => o.connections.get("Y").expect("Y outpu").to_vec(),
-    //     }
-    // }
-    // fn get_inputs(&self) -> Vec<Net> {
-    //     match self {
-    //         Self::Input(gi) => gi.connections.input.to_vec(),
-    //         Self::Sop(gs) => gs.connections.inputs.to_vec(),
-    //         Self::Olmc(go) => go.connections.input.to_vec(),
-    //     }
-    // }
-
     // Returns the hashmap of String (connection name) to a list of nets.
     pub fn get_connections(&self) -> HashMap<String, Vec<Net>> {
         match self {
@@ -530,6 +515,26 @@ impl From<YosysDoc> for Graph {
         g
     }
 }
+
+pub enum CellType {
+    Input,
+    Sop,
+    OLMC,
+}
+type Connections = HashMap<String, Vec<Net>>;
+
+type Parameters = HashMap<String, String>;
+
+pub trait Cell {
+    fn name(&self) -> &str;
+    fn connections(&self) -> &Connections;
+    fn params(&self) -> &Parameters;
+    fn ctype(&self) -> CellType;
+    fn nets(&self) -> Vec<Net>;
+    fn uses_net(&self, net: Net) -> bool;
+    fn net_on_port(&self, net: Net) -> Option<String>;
+}
+
 
 /*
  * This graph is too general as it stands. we cannot map individual input pins
