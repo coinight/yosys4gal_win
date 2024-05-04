@@ -4,6 +4,7 @@ use log::info;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use serde_with::{serde_as, BoolFromInt};
 use std::collections::HashMap;
+use std::fmt;
 use std::str;
 
 #[derive(Debug, Serialize, Clone, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -230,6 +231,12 @@ impl NamedPort {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeIdx(pub usize);
 
+impl fmt::Display for NodeIdx {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "(Nodeindex: {})", self.0)
+    }
+}
+
 
 #[derive(Debug, Clone)]
 pub struct NetAdjPair {
@@ -273,13 +280,13 @@ impl NetAdjPair {
     pub fn uses_net(&self, net: &Net) -> bool {
         net == &self.net
     }
-    pub fn uses_nodeport(&self, idx: NodeIdx, port: &str) -> bool {
-        (self.idx1 == idx && self.port1 == port) || (self.idx2 == idx && self.port2 == port)
+    pub fn uses_nodeport(&self, idx: &NodeIdx, port: &str) -> bool {
+        (&self.idx1 == idx && self.port1 == port) || (&self.idx2 == idx && self.port2 == port)
     }
-    pub fn get_other(&self, my_idx: NodeIdx) -> Option<(NodeIdx, &str)> {
-        if my_idx == self.idx1 {
+    pub fn get_other(&self, my_idx: &NodeIdx) -> Option<(NodeIdx, &str)> {
+        if my_idx == &self.idx1 {
             Some((self.idx2, &self.port2))
-        } else if my_idx == self.idx2 {
+        } else if my_idx == &self.idx2 {
             Some((self.idx1, &self.port1))
         } else {
             None
@@ -396,12 +403,12 @@ impl Graph {
 
     /// Retrieve a node from the node index
     /// TODO: make a newtype for the index.
-    pub fn get_node(&self, idx: NodeIdx) -> Option<&Node> {
+    pub fn get_node(&self, idx: &NodeIdx) -> Option<&Node> {
         self.nodelist.get(idx.0)
     }
 
-    // find the connections from the given node/port
-    pub fn get_node_port_conns(&self, nodeidx: NodeIdx, port: &str) -> Vec<&NetAdjPair> {
+    // find the connections from the given node/port ONLY WORKS FOR NON_PORT DEVICES.
+    pub fn get_node_port_conns(&self, nodeidx: &NodeIdx, port: &str) -> Vec<&NetAdjPair> {
         self.adjlist
             .iter()
             .filter(|adj| adj.uses_nodeport(nodeidx, port))
@@ -527,12 +534,61 @@ type Parameters = HashMap<String, String>;
 
 pub trait Cell {
     fn name(&self) -> &str;
-    fn connections(&self) -> &Connections;
-    fn params(&self) -> &Parameters;
     fn ctype(&self) -> CellType;
+
+    fn get_connection(&self, conn: &str) -> Option<&Vec<Net>>;
+    fn get_param(&self, param: &str) -> Option<&String>;
     fn nets(&self) -> Vec<Net>;
     fn uses_net(&self, net: Net) -> bool;
-    fn net_on_port(&self, net: Net) -> Option<String>;
+}
+
+pub struct GalCell {
+    name: Option<String>,
+    ctype: CellType,
+    connections: Connections,
+    params: Parameters,
+}
+
+impl GalCell {
+    pub fn name(&self) -> String {
+        self.name.clone().unwrap_or("unnamed".to_string())
+    }
+
+    pub fn get_connection(&self, conn: &str) -> Option<&Vec<Net>> {
+        self.connections.get(conn)
+    }
+
+    /// Access the parameter from the cell. Note that this does not 
+    /// have.
+    pub fn get_param(&self, param: &str) -> Option<&String> {
+        self.params.get(param)
+    }
+
+    /// Get all of the nets that this cell uses
+    pub fn nets(&self) -> Vec<&Net> {
+        self.connections.iter().flat_map(|x| x.1).collect()
+    }
+
+    /// Returns true if the net is used at all by the cell
+    pub fn uses_net(&self, net: &Net) -> bool {
+        self.nets().contains(&net)
+    }
+
+    /// Returns the port that uses the given net, if any.
+    pub fn get_port_for_net(&self, net: &Net) -> Option<&str> {
+        for (port, nets) in self.connections.iter() {
+            if nets.contains(net) {
+                return Some(port)
+            }
+        }
+        None
+    }
+
+    /// Returns the underlying Cell type, used to differentiate available
+    /// connections
+    pub fn ctype(&self) -> &CellType {
+        &self.ctype
+    }
 }
 
 
