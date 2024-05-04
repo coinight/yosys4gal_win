@@ -38,6 +38,8 @@ fn get_sop_for_olmc(
     olmc_idx: &NodeIdx,
 ) -> Result<GalSop, MappingError> {
     let input = graph.get_node_port_conns(olmc_idx, "A");
+    debug!("Found connections into OLMC Input: {:?}", input);
+    debug!("OLMC {:?}", graph.get_node(olmc_idx));
     let sops_on_net: Vec<_> = input
         .iter()
         .filter_map(|i| {
@@ -46,9 +48,11 @@ fn get_sop_for_olmc(
                 return None;
             };
             let node = graph.get_node(&driver_cell.0)?;
+            debug!("Found driver node {:?}", node);
             match node {
                 Node::Sop(s) => Some(s.clone()),
                 Node::Olmc(o) => {
+                    debug!("Driver is another OLMC, creating dummy SOP, {:?}", o);
                     // find the row that contains this olmc.
                     // we know this exists because mapping has already finished.
                     let newsop = GalSop {

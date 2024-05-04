@@ -363,9 +363,9 @@ impl Graph {
                     .iter()
                     .enumerate()
                     .filter(|&(idx2, node2)| {
-                        if idx1 == idx2 {
-                            return false;
-                        }
+                        // if idx1 == idx2 {
+                        //     return false;
+                        // }
                         node2.get_nets().contains(&net)
                     })
                     .collect();
