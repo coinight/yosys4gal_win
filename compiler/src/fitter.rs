@@ -334,7 +334,9 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                     let pinmode = if o.parameters.registered {
                         PinMode::Registered
                     } else {
-                        PinMode::Combinatorial
+                        // Tristate mode is "combinational" in the chipwide reg mode.
+                        // Comb mode is only supported in simple mode
+                        PinMode::Tristate
                     };
                     debug!(
                         "Setting base for olmc outpin: {:?}, pinmode: {:?}",
