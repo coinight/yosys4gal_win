@@ -162,7 +162,8 @@ fn make_term_from_sop(graph: &Graph, sop: GalSop, pcf: &PcfFile) -> Term {
     let product_size = sop.parameters.width;
     let chunksize = product_size * 2; // 00 for dontcare, 01 for negation, 10 for positive i think
 
-    let input_nets = sop.connections.get("A").unwrap();
+    let mut input_nets = sop.connections.get("A").unwrap().clone();
+    input_nets.reverse(); // the order is backwards from how we read it in the alg.
 
     let terms: Vec<Vec<Pin>> = table
         .chunks(chunksize as usize)

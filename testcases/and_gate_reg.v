@@ -1,7 +1,8 @@
 module and_gate (clk, A, B, Y);
 
 input A, B;
-output Y;
+input clk;
+output reg Y;
 
 always @(posedge clk) begin
     Y <= A && B;
