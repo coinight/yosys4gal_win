@@ -46,17 +46,10 @@ fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx) -> Result<GalSop, Mapping
             }
         })
         .collect();
-    assert_eq!(sops_on_net.len(), 1, "Should only be one sop driving a net");
+    if sops_on_net.is_empty() {
+        return Err(MappingError::MissingSOP);
+    }
     Ok(sops_on_net[0].clone())
-    // let other_node = input[0].get_other(olmc_idx).ok_or(MappingError::Unknown)?;
-    // let sop = graph
-    //     .get_node(&other_node.0)
-    //     .ok_or(MappingError::MissingSOP)?;
-    // if let Node::Sop(s) = sop {
-    //     Ok(s.clone())
-    // } else {
-    //     Err(MappingError::MissingSOP)
-    // }
 }
 
 fn map_remaining_olmc(
@@ -123,8 +116,8 @@ fn find_hwpin_for_net(graph: &Graph, pcf: &PcfFile, net: &Net) -> Result<u32, Ma
     assert_eq!(port_nets.len(), 1, "should only be one input to GAL_INPUT");
     let pnet = &port_nets[0];
 
-    if let Some(p) = graph.find_port(&pnet) {
-        info!("Found a port after traversing inputs");
+    if let Some(p) = graph.find_port(pnet) {
+        debug!("Found a port after traversing inputs, {:?}", p);
         // look up the pin.
         p.lookup(pcf)
             .ok_or(MappingError::MissingConstraint(p.clone()))

@@ -80,8 +80,7 @@ fn synth(s: SynthArgs) -> Result<()> {
     let pcf_string = std::str::from_utf8(pcf_file)?;
     let pcf = parse_pcf(pcf_string);
 
-    let res = graph_convert(&g, pcf, Chip::GAL16V8);
-
+    let res = graph_convert(&g, pcf, Chip::GAL16V8)?;
     
     Ok(())
 }
