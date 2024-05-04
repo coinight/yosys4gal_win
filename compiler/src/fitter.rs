@@ -1,10 +1,13 @@
 use std::str::from_utf8;
 
 use crate::pcf::PcfFile;
-use crate::yosys_parser::{GalInput, GalSop, Graph, NamedPort, Net, Node, NodeIdx, PortDirection};
-use galette::blueprint::Blueprint;
+use crate::yosys_parser::{
+    GalInput, GalSop, GalSopParameters, Graph, NamedPort, Net, Node, NodeIdx, PortDirection,
+};
+use galette::blueprint::{Blueprint, PinMode};
 use galette::chips::Chip;
 use log::{debug, info, warn};
+use std::collections::HashMap;
 use thiserror::Error;
 
 use galette::gal::{Pin, Term};
@@ -30,18 +33,43 @@ pub enum MappingError {
 // attempt to map graph into blueprint
 
 /// Acquire the SOP associated with the OLMC. If it's
-fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx) -> Result<GalSop, MappingError> {
+fn get_sop_for_olmc(
+    graph: &Graph,
+    olmc_idx: &NodeIdx,
+    olmcmap: &Vec<Option<NodeIdx>>,
+) -> Result<GalSop, MappingError> {
     let input = graph.get_node_port_conns(olmc_idx, "A");
     let sops_on_net: Vec<_> = input
         .iter()
         .filter_map(|i| {
-            let sop = i.get_other(olmc_idx)?;
-            if sop.1 != "Y" {
+            let driver_cell = i.get_other(olmc_idx)?;
+            if driver_cell.1 != "Y" {
                 return None;
             };
-            let node = graph.get_node(&sop.0)?;
+            let node = graph.get_node(&driver_cell.0)?;
             match node {
                 Node::Sop(s) => Some(s),
+                // Node::Olmc(o) => {
+                //     // find the row that contains this olmc.
+                //     // we know this exists because mapping has already finished.
+                //     let row = olmcmap.iter().position(|potential_match| {
+                //         match potential_match {
+                //             Some(row) => row == &driver_cell.0,
+                //             None => false,
+                //         }
+                //     }).unwrap();
+                //     let newsop = GalSop {
+                //         connections: HashMap::from([
+                //                                    ("A",
+                //         ]),
+                //         parameters: GalSopParameters {
+                //             depth: 1,
+                //             width: 1,
+                //             table: "10".to_string(),
+                //         },
+                //     };
+                //
+                // },
                 _ => None,
             }
         })
@@ -56,11 +84,12 @@ fn map_remaining_olmc(
     graph: &Graph,
     olmc: NodeIdx,
     unused: &Vec<(usize, usize)>,
+    olmcmap: &Vec<Option<NodeIdx>>,
 ) -> Result<(usize, usize), MappingError> {
     // (index, size)
     let mut chosen_row: Option<(usize, usize)> = None;
     // FIXME: implement.
-    let sop = get_sop_for_olmc(graph, &olmc)?;
+    let sop = get_sop_for_olmc(graph, &olmc, olmcmap)?;
     let sopsize: usize = sop.parameters.depth as usize;
 
     for (olmc_idx, size) in unused {
@@ -144,13 +173,13 @@ fn make_term_from_sop(graph: &Graph, sop: GalSop, pcf: &PcfFile) -> Term {
             let pins: Vec<Pin> = terms
                 .iter()
                 .enumerate()
-                .filter_map(|(idx, p)| {
+                .filter_map(|(idx, product)| {
                     let net_for_pin = input_nets.get(idx).unwrap();
                     // now use the helper to find the true hardware pin
                     let hwpin: usize =
                         find_hwpin_for_net(graph, pcf, net_for_pin).unwrap() as usize;
                     // we now have our hardware pin number!
-                    match *p {
+                    match *product {
                         "01" => Some(Pin {
                             pin: hwpin,
                             neg: true,
@@ -276,7 +305,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
     // find the smallest row that fits.
     info!("Starting deferred mapping process");
     for olmc in deferrals {
-        let row = map_remaining_olmc(graph, olmc, &unused_rows)?;
+        let row = map_remaining_olmc(graph, olmc, &unused_rows, &olmcmap)?;
         debug!("Found a mapping for {olmc} in row {} size {}", row.0, row.1);
         // insert into the mapping
         olmcmap[row.0] = Some(olmc);
@@ -292,10 +321,29 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
         match olmc {
             Some(node) => {
                 debug!("Mapping node {node} at row {idx}");
-                let sop = get_sop_for_olmc(graph, node)?;
+                let sop = get_sop_for_olmc(graph, node, &olmcmap)?;
                 debug!("Got SOP {:?} attached to node", sop);
                 let term = make_term_from_sop(graph, sop, &pcf);
                 debug!("Got term {:?}", term);
+                let gal_olmc_node = graph.get_node(node).unwrap();
+                if let Node::Olmc(o) = gal_olmc_node {
+                    let outpin = Pin {
+                        pin: 0, // PIN VALUE IS DISCARDED FOR THIS CALL
+                        neg: o.parameters.inverted,
+                    };
+                    let pinmode = if o.parameters.registered {
+                        PinMode::Registered
+                    } else {
+                        PinMode::Combinatorial
+                    };
+                    debug!(
+                        "Setting base for olmc outpin: {:?}, pinmode: {:?}",
+                        outpin, pinmode
+                    );
+                    bp.olmcs[idx].set_base(&outpin, term, pinmode)?;
+                } else {
+                    panic!("screaming");
+                }
             }
             None => {}
         }

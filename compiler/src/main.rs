@@ -3,14 +3,17 @@ pub mod yosys_parser;
 mod fitter;
 
 use clap::{Parser, Subcommand, Args};
+use galette::gal_builder::build;
+use galette::writer::{make_jedec, Config};
 use crate::pcf::parse_pcf;
 use crate::yosys_parser::{YosysDoc, Graph};
 use crate::fitter::graph_convert;
 use anyhow::{bail, Result};
 use serde_json::from_slice;
+use std::io::Write;
 use std::path::PathBuf;
 use galette::chips::Chip;
-use std::fs;
+use std::fs::{self, File};
 use env_logger;
 
 #[derive(Parser)]
@@ -81,6 +84,22 @@ fn synth(s: SynthArgs) -> Result<()> {
     let pcf = parse_pcf(pcf_string);
 
     let res = graph_convert(&g, pcf, Chip::GAL16V8)?;
+
+    let mut gal = build(&res)?;
+
+    gal.set_mode(galette::gal::Mode::Registered);
+
+    let config = Config {
+        gen_pin: false,
+        gen_fuse: false,
+        gen_chip: false,
+        jedec_sec_bit: false
+    };
+
+    let mut file = File::create("output.jed")?;
+    let jed = make_jedec(&config, &gal);
+
+    file.write_all(jed.as_bytes())?;
     
     Ok(())
 }
