@@ -19,6 +19,7 @@ exec xxd -ps -c 1 GAL16V8_reg.bin GAL16V8_reg.hex
 read_verilog $verilog_files
 hierarchy -auto-top
 flatten
+tribuf
 synth
 splitnets -ports
 yosys rename -top __original
@@ -46,6 +47,7 @@ design -stash __original
 # Read and synthesize GAL model
 read_verilog wrapper.v GAL16V8_reg.v
 flatten
+tribuf
 synth
 splitnets -ports
 select -module __wrapper
@@ -70,5 +72,6 @@ select -clear
 design -copy-from __original -as __original A:top
 
 equiv_make __original __wrapper equiv
+tribuf -formal equiv
 equiv_induct equiv
 equiv_status -assert equiv
