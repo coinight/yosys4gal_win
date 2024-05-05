@@ -33,10 +33,7 @@ pub enum MappingError {
 // attempt to map graph into blueprint
 
 /// Acquire the SOP associated with the OLMC. If it's
-fn get_sop_for_olmc(
-    graph: &Graph,
-    olmc_idx: &NodeIdx,
-) -> Result<GalSop, MappingError> {
+fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx) -> Result<GalSop, MappingError> {
     let input = graph.get_node_port_conns(olmc_idx, "A");
     debug!("Found connections into OLMC Input: {:?}", input);
     debug!("OLMC {:?}", graph.get_node(olmc_idx));
@@ -56,9 +53,7 @@ fn get_sop_for_olmc(
                     // find the row that contains this olmc.
                     // we know this exists because mapping has already finished.
                     let newsop = GalSop {
-                        connections: HashMap::from([
-                                                   ("A".to_string(), vec![i.net.clone()]),
-                        ]),
+                        connections: HashMap::from([("A".to_string(), vec![i.net.clone()])]),
                         parameters: GalSopParameters {
                             depth: 1,
                             width: 1,
@@ -66,8 +61,7 @@ fn get_sop_for_olmc(
                         },
                     };
                     Some(newsop)
-
-                },
+                }
                 _ => None,
             }
         })
@@ -117,10 +111,21 @@ fn map_remaining_olmc(
     }
 }
 
+
+fn chip_to_olmc_offset(chip: &Chip) -> usize {
+    match chip {
+        Chip::GAL16V8 => 12,
+        Chip::GAL22V10 => 14,
+        _ => panic!("Invalid chip!"),
+    }
+
+}
+
 fn find_hwpin_for_net(
     graph: &Graph,
     pcf: &PcfFile,
-    olmcmap: &Vec<Option<NodeIdx>>,
+    olmcmap: &[Option<NodeIdx>],
+    chip: &Chip,
     net: &Net,
 ) -> Result<u32, MappingError> {
     // this does a double lookup. first it finds the Input on the net,
@@ -169,9 +174,12 @@ fn find_hwpin_for_net(
                 .iter()
                 .position(|node| node == inputs[0])
                 .unwrap();
-            let olmc_row = olmcmap.iter().position(|r| r == &Some(NodeIdx(olmc_idx))).unwrap();
+            let olmc_row = olmcmap
+                .iter()
+                .position(|r| r == &Some(NodeIdx(olmc_idx)))
+                .unwrap();
             // we have the row.
-            let pin = olmc_row + 12; // TODO: fix!
+            let pin = olmc_row + chip_to_olmc_offset(chip); // TODO: fix!
             debug!("OLMC discovered on {pin}");
             Ok(pin as u32)
         }
@@ -182,7 +190,8 @@ fn find_hwpin_for_net(
 fn make_term_from_sop(
     graph: &Graph,
     pcf: &PcfFile,
-    olmcmap: &Vec<Option<NodeIdx>>,
+    olmcmap: &[Option<NodeIdx>],
+    chip: &Chip,
     sop: GalSop,
 ) -> Term {
     let table = sop.parameters.table.as_bytes();
@@ -207,7 +216,7 @@ fn make_term_from_sop(
                     let net_for_pin = input_nets.get(idx).unwrap();
                     // now use the helper to find the true hardware pin
                     let hwpin: usize =
-                        find_hwpin_for_net(graph, pcf, olmcmap, net_for_pin).unwrap() as usize;
+                        find_hwpin_for_net(graph, pcf, olmcmap, &chip, net_for_pin).unwrap() as usize;
                     // we now have our hardware pin number!
                     match *product {
                         "01" => Some(Pin {
@@ -353,7 +362,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                 debug!("Mapping node {node} at row {idx}");
                 let sop = get_sop_for_olmc(graph, node)?;
                 debug!("Got SOP {:?} attached to node", sop);
-                let term = make_term_from_sop(graph, &pcf, &olmcmap, sop);
+                let term = make_term_from_sop(graph, &pcf, &olmcmap, &chip, sop);
                 debug!("Got term {:?}", term);
                 let gal_olmc_node = graph.get_node(node).unwrap();
                 if let Node::Olmc(o) = gal_olmc_node {

@@ -2,7 +2,7 @@ pub mod pcf;
 pub mod yosys_parser;
 mod fitter;
 
-use clap::{Parser, Subcommand, Args};
+use clap::{Parser, Subcommand, ValueEnum, Args};
 use galette::gal_builder::build;
 use galette::writer::{make_jedec, Config};
 use crate::pcf::parse_pcf;
@@ -35,6 +35,21 @@ struct ValidateArgs {
     file: PathBuf,
 }
 
+#[derive(ValueEnum, Debug, Clone)]
+enum ChipType {
+    GAL16V8,
+    GAL22V10
+}
+
+impl ChipType {
+    fn to_galette(&self) -> Chip {
+        match self {
+            Self::GAL16V8 => Chip::GAL16V8,
+            Self::GAL22V10 => Chip::GAL22V10,
+        }
+    }
+}
+
 
 #[derive(Args)]
 struct SynthArgs {
@@ -42,6 +57,9 @@ struct SynthArgs {
     netlist: PathBuf,
     #[arg(required = true, value_hint = clap::ValueHint::DirPath)]
     constraints: PathBuf,
+
+    #[arg(value_enum, long, default_value_t=ChipType::GAL16V8)]
+    chip: ChipType
 }
 
 
@@ -83,7 +101,7 @@ fn synth(s: SynthArgs) -> Result<()> {
     let pcf_string = std::str::from_utf8(pcf_file)?;
     let pcf = parse_pcf(pcf_string);
 
-    let res = graph_convert(&g, pcf, Chip::GAL16V8)?;
+    let res = graph_convert(&g, pcf, s.chip.to_galette())?;
 
     let mut gal = build(&res)?;
 
