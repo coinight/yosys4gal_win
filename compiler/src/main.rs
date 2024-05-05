@@ -122,7 +122,9 @@ fn synth(s: SynthArgs) -> Result<()> {
         info!("running yosys command {:?}", yosys);
 
         let out = yosys.output().expect("failed to execute process");
+        info!("Yosys existed with error code {}", out.status);
         trace!("Yosys stdout: ====== {}", str::from_utf8(&out.stdout).expect("hi"));
+        trace!("Yosys stderr: ====== {}", str::from_utf8(&out.stderr).expect("hi"));
 
         res = load_to_graph(&s.netlist, &pcf, s.chip.to_galette());
     }
