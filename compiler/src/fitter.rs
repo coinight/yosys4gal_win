@@ -26,7 +26,7 @@ pub enum MappingError {
     SopTooBig {
         name: String,
         sop_size: usize,
-        wanted_size: usize
+        wanted_size: usize,
     },
 
     #[error("Unknown error")]
@@ -97,8 +97,12 @@ fn map_remaining_olmc(
         }
         None => {
             let minsize = unused.iter().map(|x| x.1).min().unwrap();
-            Err(MappingError::SopTooBig {name: sop.name.unwrap(), sop_size: sopsize, wanted_size: minsize})
-        },
+            Err(MappingError::SopTooBig {
+                name: sop.name.unwrap(),
+                sop_size: sopsize,
+                wanted_size: minsize,
+            })
+        }
     }
 }
 
@@ -307,7 +311,11 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                 let rowsize = chip.num_rows_for_olmc(olmc_row);
                 if sopsize > rowsize {
                     return Err(MappingError::SopTooBig {
-                        name: sop.name.unwrap(), sop_size: sopsize, wanted_size: rowsize }.into());
+                        name: sop.name.unwrap(),
+                        sop_size: sopsize,
+                        wanted_size: rowsize,
+                    }
+                    .into());
                 }
                 info!("Found a real pin to map: Mapping node {o:?} onto row {olmc_row}");
 
@@ -377,13 +385,12 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                             let tri_sop = get_sop_for_olmc(graph, node, "E")?;
                             debug!("Sop found, {:?}", tri_sop);
                             assert_eq!(tri_sop.parameters.depth, 1);
-                            let tri_term = make_term_from_sop(graph, &pcf, &olmcmap, &chip, tri_sop);
+                            let tri_term =
+                                make_term_from_sop(graph, &pcf, &olmcmap, &chip, tri_sop);
                             debug!("Term for tristate SOP made = {:?}", tri_term);
                             tri_term
                         }
-                        Net::LiteralOne => {
-                            true_term(0)
-                        }
+                        Net::LiteralOne => true_term(0),
                         Net::LiteralZero => {
                             warn!("Making a false term for output enable, this shouldn't happen!");
                             false_term(0)
@@ -392,7 +399,6 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                             panic!("E net should not be undriven!");
                         }
                     };
-
 
                     let outpin = Pin {
                         pin: 0, // PIN VALUE IS DISCARDED FOR THIS CALL
@@ -409,12 +415,11 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                         "Setting base for olmc outpin: {:?}, pinmode: {:?}",
                         outpin, pinmode
                     );
-                    bp.olmcs[idx].set_base(&outpin, term, pinmode).ok_or(MappingError::Unknown)?;
-                    let dummy_pin = Pin {
-                        pin: 0, neg: false
-                    };
+                    bp.olmcs[idx]
+                        .set_base(&outpin, term, pinmode)
+                        .ok_or(MappingError::Unknown)?;
+                    let dummy_pin = Pin { pin: 0, neg: false };
                     bp.olmcs[idx].set_enable(&dummy_pin, tri_term)?;
-
                 } else {
                     panic!("screaming");
                 }

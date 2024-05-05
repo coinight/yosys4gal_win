@@ -104,8 +104,10 @@ fn synth(s: SynthArgs) -> Result<()> {
     let res = graph_convert(&g, pcf, s.chip.to_galette())?;
 
     let mut gal = build(&res)?;
-
-    gal.set_mode(galette::gal::Mode::Registered);
+    
+    if matches!(s.chip, ChipType::GAL16V8) {
+        gal.set_mode(galette::gal::Mode::Registered);
+    }
 
     let config = Config {
         gen_pin: false,
