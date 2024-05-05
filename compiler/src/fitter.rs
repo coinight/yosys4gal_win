@@ -303,7 +303,7 @@ pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Bluepri
             Some(port) => {
                 info!("Found a port, performing port lookup");
                 let pin = port
-                    .lookup(&pcf)
+                    .lookup(pcf)
                     .ok_or(MappingError::MissingConstraint(port.clone()))?;
                 let olmc_row = chip
                     .pin_to_olmc(pin as usize)
@@ -318,15 +318,14 @@ pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Bluepri
                         name: sop.name.unwrap(),
                         sop_size: sopsize,
                         wanted_size: rowsize,
-                    }
-                    .into());
+                    });
                 }
                 info!("Found a real pin to map: Mapping node {o:?} onto row {olmc_row}");
 
                 // check if OLMC row is already in use
                 if let Some(o) = olmcmap[olmc_row] {
                     error!("already exists in {o:?}");
-                    return Err(MappingError::Unknown.into());
+                    return Err(MappingError::Unknown);
                 }
                 olmcmap[olmc_row] = Some(o);
             }
@@ -372,7 +371,7 @@ pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Bluepri
                 debug!("Mapping node {node} at row {idx}");
                 let sop = get_sop_for_olmc(graph, node, "A")?;
                 debug!("Got SOP {:?} attached to node", sop);
-                let term = make_term_from_sop(graph, &pcf, &olmcmap, &chip, sop);
+                let term = make_term_from_sop(graph, pcf, &olmcmap, &chip, sop);
                 debug!("Got term {:?}", term);
                 let gal_olmc_node = graph.get_node(node).unwrap();
                 if let Node::Olmc(o) = gal_olmc_node {
@@ -390,7 +389,7 @@ pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Bluepri
                             debug!("Sop found, {:?}", tri_sop);
                             assert_eq!(tri_sop.parameters.depth, 1);
                             let tri_term =
-                                make_term_from_sop(graph, &pcf, &olmcmap, &chip, tri_sop);
+                                make_term_from_sop(graph, pcf, &olmcmap, &chip, tri_sop);
                             debug!("Term for tristate SOP made = {:?}", tri_term);
                             tri_term
                         }
@@ -423,7 +422,9 @@ pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Bluepri
                         .set_base(&outpin, term, pinmode)
                         .ok_or(MappingError::Unknown)?;
                     let dummy_pin = Pin { pin: 0, neg: false };
-                    bp.olmcs[idx].set_enable(&dummy_pin, tri_term)?;
+                    if !(matches!(chip, Chip::GAL16V8) && o.parameters.registered) {
+                        bp.olmcs[idx].set_enable(&dummy_pin, tri_term)?;
+                    }
                 } else {
                     panic!("screaming");
                 }
