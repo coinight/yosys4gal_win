@@ -10,7 +10,7 @@ use log::{debug, info, warn};
 use std::collections::HashMap;
 use thiserror::Error;
 
-use galette::gal::{Pin, Term};
+use galette::gal::{false_term, true_term, Pin, Term};
 
 #[derive(Debug, Error)]
 pub enum MappingError {
@@ -32,9 +32,9 @@ pub enum MappingError {
 
 // attempt to map graph into blueprint
 
-/// Acquire the SOP associated with the OLMC. If it's
-fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx) -> Result<GalSop, MappingError> {
-    let input = graph.get_node_port_conns(olmc_idx, "A");
+/// Acquire the SOP associated with the OLMC port.
+fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx, port: &str) -> Result<GalSop, MappingError> {
+    let input = graph.get_node_port_conns(olmc_idx, port);
     debug!("Found connections into OLMC Input: {:?}", input);
     debug!("OLMC {:?}", graph.get_node(olmc_idx));
     let sops_on_net: Vec<_> = input
@@ -66,7 +66,7 @@ fn map_remaining_olmc(
     // (index, size)
     let mut chosen_row: Option<(usize, usize)> = None;
     // FIXME: implement.
-    let sop = get_sop_for_olmc(graph, &olmc)?;
+    let sop = get_sop_for_olmc(graph, &olmc, "A")?;
     let sopsize: usize = sop.parameters.depth as usize;
 
     for (olmc_idx, size) in unused {
@@ -97,14 +97,12 @@ fn map_remaining_olmc(
     }
 }
 
-
 fn chip_to_olmc_offset(chip: &Chip) -> usize {
     match chip {
         Chip::GAL16V8 => 12,
         Chip::GAL22V10 => 14,
         _ => panic!("Invalid chip!"),
     }
-
 }
 
 fn find_hwpin_for_net(
@@ -202,8 +200,8 @@ fn make_term_from_sop(
                 .filter_map(|(idx, product)| {
                     let net_for_pin = input_nets.get(idx).unwrap();
                     // now use the helper to find the true hardware pin
-                    let hwpin: usize =
-                        find_hwpin_for_net(graph, pcf, olmcmap, &chip, net_for_pin).unwrap() as usize;
+                    let hwpin: usize = find_hwpin_for_net(graph, pcf, olmcmap, &chip, net_for_pin)
+                        .unwrap() as usize;
                     // we now have our hardware pin number!
                     match *product {
                         "01" => Some(Pin {
@@ -347,12 +345,42 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
         match olmc {
             Some(node) => {
                 debug!("Mapping node {node} at row {idx}");
-                let sop = get_sop_for_olmc(graph, node)?;
+                let sop = get_sop_for_olmc(graph, node, "A")?;
                 debug!("Got SOP {:?} attached to node", sop);
                 let term = make_term_from_sop(graph, &pcf, &olmcmap, &chip, sop);
                 debug!("Got term {:?}", term);
                 let gal_olmc_node = graph.get_node(node).unwrap();
                 if let Node::Olmc(o) = gal_olmc_node {
+                    // get the tristate net.
+                    let tristate_nets = o.connections.get("E").unwrap();
+                    assert_eq!(
+                        tristate_nets.len(),
+                        1,
+                        "Should be exactly one tristate net lol"
+                    );
+                    let tri_term = match &tristate_nets[0] {
+                        Net::N(_) => {
+                            debug!("Tristate net discovered, mapping SOP");
+                            let tri_sop = get_sop_for_olmc(graph, node, "E")?;
+                            debug!("Sop found, {:?}", tri_sop);
+                            assert_eq!(tri_sop.parameters.depth, 1);
+                            let tri_term = make_term_from_sop(graph, &pcf, &olmcmap, &chip, tri_sop);
+                            debug!("Term for tristate SOP made = {:?}", tri_term);
+                            tri_term
+                        }
+                        Net::LiteralOne => {
+                            true_term(0)
+                        }
+                        Net::LiteralZero => {
+                            warn!("Making a false term for output enable, this shouldn't happen!");
+                            false_term(0)
+                        }
+                        _ => {
+                            panic!("E net should not be undriven!");
+                        }
+                    };
+
+
                     let outpin = Pin {
                         pin: 0, // PIN VALUE IS DISCARDED FOR THIS CALL
                         neg: o.parameters.inverted,
@@ -368,7 +396,12 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                         "Setting base for olmc outpin: {:?}, pinmode: {:?}",
                         outpin, pinmode
                     );
-                    bp.olmcs[idx].set_base(&outpin, term, pinmode);
+                    bp.olmcs[idx].set_base(&outpin, term, pinmode).ok_or(MappingError::Unknown)?;
+                    let dummy_pin = Pin {
+                        pin: 0, neg: false
+                    };
+                    bp.olmcs[idx].set_enable(&dummy_pin, tri_term)?;
+
                 } else {
                     panic!("screaming");
                 }
