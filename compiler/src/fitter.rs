@@ -48,20 +48,6 @@ fn get_sop_for_olmc(graph: &Graph, olmc_idx: &NodeIdx) -> Result<GalSop, Mapping
             debug!("Found driver node {:?}", node);
             match node {
                 Node::Sop(s) => Some(s.clone()),
-                Node::Olmc(o) => {
-                    debug!("Driver is another OLMC, creating dummy SOP, {:?}", o);
-                    // find the row that contains this olmc.
-                    // we know this exists because mapping has already finished.
-                    let newsop = GalSop {
-                        connections: HashMap::from([("A".to_string(), vec![i.net.clone()])]),
-                        parameters: GalSopParameters {
-                            depth: 1,
-                            width: 1,
-                            table: "10".to_string(),
-                        },
-                    };
-                    Some(newsop)
-                }
                 _ => None,
             }
         })
@@ -199,6 +185,7 @@ fn make_term_from_sop(
     let n_products = sop.parameters.depth;
     let product_size = sop.parameters.width;
     let chunksize = product_size * 2; // 00 for dontcare, 01 for negation, 10 for positive i think
+    debug!("Making Term from SOP {:?}", sop);
 
     let mut input_nets = sop.connections.get("A").unwrap().clone();
     input_nets.reverse(); // the order is backwards from how we read it in the alg.
