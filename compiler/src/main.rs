@@ -7,17 +7,17 @@ use crate::pcf::{parse_pcf, PcfFile};
 use crate::yosys_parser::{Graph, YosysDoc};
 use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand, ValueEnum};
-use env_logger;
 use galette::blueprint::Blueprint;
 use galette::chips::Chip;
 use galette::gal_builder::build;
 use galette::writer::{make_jedec, Config};
+use log::{info, trace, warn};
 use serde_json::from_slice;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
-use log::{info, warn};
+use std::str;
 
 #[derive(Parser)]
 struct Cli {
@@ -81,11 +81,7 @@ fn validate(v: ValidateArgs) -> Result<()> {
     Ok(())
 }
 
-fn load_to_graph(
-    netlist: &PathBuf,
-    pcf: &PcfFile,
-    chip: Chip,
-) -> Result<Blueprint, MappingError> {
+fn load_to_graph(netlist: &PathBuf, pcf: &PcfFile, chip: Chip) -> Result<Blueprint, MappingError> {
     info!("loading netlist...");
     let f = fs::read(netlist).unwrap();
 
@@ -101,7 +97,6 @@ fn load_to_graph(
 }
 
 fn synth(s: SynthArgs) -> Result<()> {
-
     // load the pcf
     let pcf_file = &fs::read(s.constraints)?;
     let pcf_string = std::str::from_utf8(pcf_file)?;
@@ -109,9 +104,24 @@ fn synth(s: SynthArgs) -> Result<()> {
 
     let mut res = load_to_graph(&s.netlist, &pcf, s.chip.to_galette());
 
-    while let Err(MappingError::SopTooBig { ref name, sop_size, wanted_size }) = res {
+    while let Err(MappingError::SopTooBig {
+        ref name,
+        sop_size,
+        wanted_size,
+    }) = res
+    {
         warn!("Sop too large, attempting to split {name}. cur={sop_size} want={wanted_size}");
-        let yosys = Command::new("yosys").args(["split_sop.tcl"]);
+        let mut yosys = Command::new("yosys");
+        yosys
+            .args(["-c", "shink_sop.tcl", "--"])
+            .arg(&s.netlist)
+            .arg(name)
+            .arg(wanted_size.to_string());
+
+        info!("running yosys command {:?}", yosys);
+
+        let out = yosys.output().expect("failed to execute process");
+        trace!("Yosys stdout: ====== {}", str::from_utf8(&out.stdout).expect("hi"));
 
         res = load_to_graph(&s.netlist, &pcf, s.chip.to_galette());
     }

@@ -1,13 +1,11 @@
-use std::error::Error;
 use std::str::from_utf8;
 
 use crate::pcf::PcfFile;
 use crate::yosys_parser::{
-    GalInput, GalSop, GalSopParameters, Graph, NamedPort, Net, Node, NodeIdx, PortDirection,
+    GalSop, Graph, NamedPort, Net, Node, NodeIdx, PortDirection,
 };
 use galette::blueprint::{Blueprint, PinMode};
 use galette::chips::Chip;
-use galette::errors;
 use log::{debug, error, info, warn};
 use thiserror::Error;
 
