@@ -112,11 +112,12 @@ fn synth(s: SynthArgs) -> Result<()> {
     {
         warn!("Sop too large, attempting to split {name}. cur={sop_size} want={wanted_size}");
         let mut yosys = Command::new("yosys");
+        let wsize = wanted_size - 1;
         yosys
             .args(["-c", "shink_sop.tcl", "--"])
             .arg(&s.netlist)
             .arg(name)
-            .arg(wanted_size.to_string());
+            .arg(wsize.to_string());
 
         info!("running yosys command {:?}", yosys);
 
