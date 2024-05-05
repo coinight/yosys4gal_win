@@ -96,6 +96,7 @@ fn map_remaining_olmc(
             Ok(x)
         }
         None => {
+            assert!(!unused.is_empty(), "should have rows available");
             let minsize = unused.iter().map(|x| x.1).min().unwrap();
             Err(MappingError::SopTooBig {
                 name: sop.name.unwrap(),
