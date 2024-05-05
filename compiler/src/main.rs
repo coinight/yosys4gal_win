@@ -114,7 +114,7 @@ fn synth(s: SynthArgs) -> Result<()> {
         let mut yosys = Command::new("yosys");
         let wsize = wanted_size - 1;
         yosys
-            .args(["-c", "shink_sop.tcl", "--"])
+            .args(["-c", "shrink_sop.tcl", "--"])
             .arg(&s.netlist)
             .arg(name)
             .arg(wsize.to_string());
