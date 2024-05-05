@@ -1,22 +1,16 @@
-module wrapper (
-	input wire clk,
-	input wire [5:0] in,
-	output wire [4:0] out
+`default_nettype none
+module __wrapper (
+	input wire       __clk,  // Pin 1
+	input wire [7:0] __in,   // Pin {9, 8, 7, 6, 5, 4, 3, 2}
+	input wire       __oe_n, // Pin 11
+	inout wire [7:0] __io    // Pin {12, 13, 14, 15, 16, 17, 18, 19}
 );
 
-wire [7:0] in_int;
-wire [7:0] io_int;
-wire oe_n;
-
-assign oe_n = 0;
-assign in_int = {3'b0, in};
-assign out = {io_int[3], io_int[4], io_int[5], io_int[6], io_int[7]};
-
 GAL16V8_reg GAL16V8_reg_inst (
-	.clk(clk),
-	.in(in_int),
-	.oe_n(oe_n),
-	.io(io_int)
+	.clk(__clk),
+	.in(__in),
+	.oe_n(__oe_n),
+	.io(__io)
 );
 
 endmodule

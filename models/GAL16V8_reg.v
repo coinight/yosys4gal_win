@@ -1,9 +1,9 @@
 `default_nettype none
 module GAL16V8_reg (
-	input wire       clk,
-	input wire [7:0] in,
-	input wire       oe_n,
-	inout wire [7:0] io
+	input wire       clk,  // Pin 1
+	input wire [7:0] in,   // Pin {9, 8, 7, 6, 5, 4, 3, 2}
+	input wire       oe_n, // Pin 11
+	inout wire [7:0] io    // Pin {12, 13, 14, 15, 16, 17, 18, 19}
 );
 	// Read in binary JEDEC file
 	reg [7:0] jed_bin_file [0:278];
@@ -63,7 +63,7 @@ module GAL16V8_reg (
 				.NUM_PRODUCTS(1),
 				.NUM_INPUTS(16)
 			) one_sop_inst (
-				.sop_fuses(sop_fuses[i][255:224]),
+				.sop_fuses(sop_fuses[i][31:0]),
 				.ptd_fuses(ptd_fuses[i][0]),
 				.in(interleaved),
 				.out(one_sop_out)
@@ -74,7 +74,7 @@ module GAL16V8_reg (
 				.NUM_PRODUCTS(7),
 				.NUM_INPUTS(16)
 			) sop_inst (
-				.sop_fuses(sop_fuses[i][223:0]),
+				.sop_fuses(sop_fuses[i][255:32]),
 				.ptd_fuses(ptd_fuses[i][7:1]),
 				.in(interleaved),
 				.out(sop_out)
@@ -168,7 +168,7 @@ module olmc (
 		reg_out <= out;
 	end
 
-	assign feedback = ac1_fuse ? !reg_out : out;
+	assign feedback = ac1_fuse ? !out : !reg_out;
 
 	assign io = ac1_fuse ? (one_sop ? !out : 1'bz) : // Combinational
 		(oe_n ? 1'bz : !reg_out); // Registered
