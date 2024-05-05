@@ -6,4 +6,3 @@ set_io counter[3] 15
 set_io counter[4] 16
 set_io counter[5] 17
 set_io counter[6] 18
-set_io counter[7] 19

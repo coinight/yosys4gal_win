@@ -89,7 +89,13 @@ iopadmap -bits -outpad GAL_COMB_OUTPUT_P A:Y */t:GAL_SOP "%x:+\[Y\]" */t:GAL_SOP
 techmap -map techmaps/olmc_comb.v
 
 # Add trivial SOPs between directly connected OLMCs
-techmap -max_iter 1 -map techmaps/trivial_sop_olmc.v */t:GAL_OLMC %ci1 */w:* %i */t:GAL_SOP %co1 */w:* %i %i %c %co1 %D */t:GAL_OLMC %D
+techmap -max_iter 1 -map techmaps/trivial_sop_olmc.v */t:GAL_OLMC "%ci1:+\[A\]" */w:* %i */t:GAL_SOP %co1 */w:* %i %i %c %co1 %D */t:GAL_OLMC %D
+
+# Add trivial SOPs between directly connected OLMCs and INPUTs
+techmap -max_iter 1 -map techmaps/trivial_sop_olmc.v */t:GAL_OLMC "%ci1:+\[A\]" */w:* %i */t:GAL_INPUT %co1 */w:* %i %i %c %co1 %D
+
+# Add trivial 1SOPs between directly connected OLMC enables and INPUTs
+techmap -max_iter 1 -map techmaps/trivial_1sop_olmc.v */t:GAL_OLMC "%ci1:+\[E\]" */w:* %i */t:GAL_INPUT %co1 */w:* %i %i %c %co1 %D
 
 clean -purge
 

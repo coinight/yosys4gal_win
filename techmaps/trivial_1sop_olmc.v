@@ -14,17 +14,17 @@ module _80_GAL_OLMC (C, E, A, Y);
 			.INVERTED(INVERTED)
 		) _TECHMAP_REPLACE_ (
 			.C(C),
-			.E(E),
-			.A(int),
+			.E(int),
+			.A(A),
 			.Y(Y)
 		);
 
-		GAL_SOP #(
+		GAL_1SOP #(
 			.WIDTH(1),
 			.DEPTH(1),
 			.TABLE(2'b10)
-		) trivial_sop_olmc (
-			.A(A),
+		) trivial_1sop_olmc (
+			.A(E),
 			.Y(int),
 		);
 	endgenerate
