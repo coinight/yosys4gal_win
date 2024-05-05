@@ -517,7 +517,8 @@ impl From<YosysDoc> for Graph {
                     YosysCell::Sop(s) => Node::Sop(s),
                     YosysCell::OLMC(n) => Node::Olmc(n),
                 };
-                newcell.set_name(&cell_name);
+                let fully_qualified_name = format!("{mod_name}/{cell_name}");
+                newcell.set_name(&fully_qualified_name);
                 g.nodelist.push(newcell);
             }
             for (port_name, port) in module.ports {

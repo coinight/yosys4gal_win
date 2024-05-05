@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::str::from_utf8;
 
 use crate::pcf::PcfFile;
@@ -6,6 +7,7 @@ use crate::yosys_parser::{
 };
 use galette::blueprint::{Blueprint, PinMode};
 use galette::chips::Chip;
+use galette::errors;
 use log::{debug, error, info, warn};
 use thiserror::Error;
 
@@ -31,6 +33,9 @@ pub enum MappingError {
 
     #[error("Unknown error")]
     Unknown,
+
+    #[error("galette error")]
+    Galette(#[from] galette::errors::ErrorCode),
 }
 
 // attempt to map graph into blueprint
@@ -248,7 +253,7 @@ fn valid_inputs(chip: Chip) -> Vec<u32> {
     }
 }
 
-pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<Blueprint> {
+pub fn graph_convert(graph: &Graph, pcf: &PcfFile, chip: Chip) -> Result<Blueprint, MappingError> {
     let mut bp = Blueprint::new(chip);
 
     let valid_inp = valid_inputs(chip);
@@ -303,7 +308,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                     .lookup(&pcf)
                     .ok_or(MappingError::MissingConstraint(port.clone()))?;
                 let olmc_row = chip
-                    .pin_to_olmc(pin.try_into()?)
+                    .pin_to_olmc(pin as usize)
                     .ok_or(MappingError::Unknown)?;
                 // TODO: check size of row vs size of SOP
                 // FIXME: -0 to size if registered, if comb, size - 1
@@ -335,7 +340,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
     }
     // at this point, we should have mapped
     let num_mapped = olmcmap.iter().filter(|x| x.is_some()).count();
-    info!("Mapped {num_mapped} OLMCS, {} deferred", deferrals.len());
+    info!("Mapped {num_mapped} OLMCS, {} deferred", deferrals.len());   
 
     // to map the deferred ones, we need to find the smallest SOP that is still large enough for
     // it.
