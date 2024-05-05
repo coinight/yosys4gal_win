@@ -88,6 +88,9 @@ techmap -max_iter 1 -map techmaps/pla_olmc_int.v */t:GAL_SOP %co1 */w:* %i */t:G
 iopadmap -bits -outpad GAL_COMB_OUTPUT_P A:Y */t:GAL_SOP "%x:+\[Y\]" */t:GAL_SOP %d o:* %i
 techmap -map techmaps/olmc_comb.v
 
+# Add trivial SOPs between directly connected OLMCs
+techmap -max_iter 1 -map techmaps/trivial_sop_olmc.v */t:GAL_OLMC %ci1 */w:* %i */t:GAL_SOP %co1 */w:* %i %i %c %co1 %D */t:GAL_OLMC %D
+
 clean -purge
 
 ## Write output files
