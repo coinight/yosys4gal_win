@@ -22,7 +22,7 @@ module _80_GAL_OLMC (C, E, A, Y);
 		GAL_SOP #(
 			.WIDTH(1),
 			.DEPTH(1),
-			.TABLE(10)
+			.TABLE(2'b10)
 		) trivial_sop (
 			.A(A),
 			.Y(int),
