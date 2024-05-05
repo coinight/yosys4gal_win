@@ -18,7 +18,7 @@ set target [expr {$argc == 2 ? [lindex $argv 1] : "GAL16V8"}]
 if {$target == "GAL16V8"} {
 	set num_max_products 7
 } elseif {$target == "GAL22V10"} {
-	set num_max_products 11
+	set num_max_products 16
 } else {
 	puts "Invalid target chip: GAL16V8 and GAL22V10 available"
 	exit
@@ -58,7 +58,9 @@ if {$num_regs > 0} { set num_inputs_regs [expr $num_inputs_regs - 1] }
 #techmap
 #select *
 
-abc -sop -I $num_inputs_regs -P $num_max_products
+#abc -sop -I $num_inputs_regs -P $num_max_products
+# Use infinite inputs since ABC is dumb and this usually gets around it (shouldn't cause problems)
+abc -sop -I 100000 -P $num_max_products
 
 opt
 clean -purge
