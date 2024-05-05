@@ -6,8 +6,7 @@ use crate::yosys_parser::{
 };
 use galette::blueprint::{Blueprint, PinMode};
 use galette::chips::Chip;
-use log::{debug, info, warn};
-use std::collections::HashMap;
+use log::{debug, error, info, warn};
 use thiserror::Error;
 
 use galette::gal::{false_term, true_term, Pin, Term};
@@ -23,8 +22,12 @@ pub enum MappingError {
     #[error("Could not find the SOP input")]
     MissingSOP,
 
-    #[error("Could not find a sop to fit SOP {0:?} of {1}")]
-    SopTooBig(String, usize),
+    #[error("Could not find a sop to fit SOP {name} of {sop_size}, wanted {wanted_size}")]
+    SopTooBig {
+        name: String,
+        sop_size: usize,
+        wanted_size: usize
+    },
 
     #[error("Unknown error")]
     Unknown,
@@ -65,7 +68,6 @@ fn map_remaining_olmc(
 ) -> Result<(usize, usize), MappingError> {
     // (index, size)
     let mut chosen_row: Option<(usize, usize)> = None;
-    // FIXME: implement.
     let sop = get_sop_for_olmc(graph, &olmc, "A")?;
     let sopsize: usize = sop.parameters.depth as usize;
 
@@ -93,7 +95,10 @@ fn map_remaining_olmc(
             );
             Ok(x)
         }
-        None => Err(MappingError::SopTooBig("TODO FIXME".to_string(), sopsize)),
+        None => {
+            let minsize = unused.iter().map(|x| x.1).min().unwrap();
+            Err(MappingError::SopTooBig {name: sop.name.unwrap(), sop_size: sopsize, wanted_size: minsize})
+        },
     }
 }
 
@@ -297,11 +302,18 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
                     .ok_or(MappingError::Unknown)?;
                 // TODO: check size of row vs size of SOP
                 // FIXME: -0 to size if registered, if comb, size - 1
+                let sop = get_sop_for_olmc(graph, &o, "A")?;
+                let sopsize: usize = sop.parameters.depth as usize;
+                let rowsize = chip.num_rows_for_olmc(olmc_row);
+                if sopsize > rowsize {
+                    return Err(MappingError::SopTooBig {
+                        name: sop.name.unwrap(), sop_size: sopsize, wanted_size: rowsize }.into());
+                }
                 info!("Found a real pin to map: Mapping node {o:?} onto row {olmc_row}");
 
                 // check if OLMC row is already in use
                 if let Some(o) = olmcmap[olmc_row] {
-                    info!("already exists in {o:?}");
+                    error!("already exists in {o:?}");
                     return Err(MappingError::Unknown.into());
                 }
                 olmcmap[olmc_row] = Some(o);
@@ -326,6 +338,7 @@ pub fn graph_convert(graph: &Graph, pcf: PcfFile, chip: Chip) -> anyhow::Result<
         .map(|i| (i, chip.num_rows_for_olmc(i))) // get the size of the row
         .collect();
 
+    debug!("Unused rows={:?}", unused_rows);
     // find the smallest row that fits.
     info!("Starting deferred mapping process");
     for olmc in deferrals {

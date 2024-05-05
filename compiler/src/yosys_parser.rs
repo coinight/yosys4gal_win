@@ -22,6 +22,7 @@ pub enum Net {
 /// The GAL_INPUT marks an external ipnut
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GalInput {
+    pub name: Option<String>,
     pub connections: HashMap<String, Vec<Net>>,
 }
 
@@ -56,6 +57,7 @@ pub struct GalSopParameters {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GalSop {
+    pub name: Option<String>,
     pub connections: HashMap<String, Vec<Net>>,
     pub parameters: GalSopParameters,
 }
@@ -72,6 +74,7 @@ pub struct GALOLMCParameters {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GalOLMC {
+    pub name: Option<String>,
     pub parameters: GALOLMCParameters,
     pub connections: HashMap<String, Vec<Net>>,
 }
@@ -336,6 +339,14 @@ impl Node {
             .flat_map(|(_, nets)| nets.clone())
             .collect()
     }
+
+    fn set_name(&mut self, n: &str) {
+        match self {
+            Self::Olmc(ol) => ol.name = Some(n.to_string()),
+            Self::Input(i) => i.name = Some(n.to_string()),
+            Self::Sop(s) => s.name = Some(n.to_string()),
+        };
+    }
 }
 
 #[derive(Default, Debug)]
@@ -501,11 +512,12 @@ impl From<YosysDoc> for Graph {
             }
             for (cell_name, cell) in module.cells {
                 info!("Processing cell {}", cell_name);
-                let newcell = match cell {
+                let mut newcell = match cell {
                     YosysCell::Input(d) => Node::Input(d),
                     YosysCell::Sop(s) => Node::Sop(s),
                     YosysCell::OLMC(n) => Node::Olmc(n),
                 };
+                newcell.set_name(&cell_name);
                 g.nodelist.push(newcell);
             }
             for (port_name, port) in module.ports {
