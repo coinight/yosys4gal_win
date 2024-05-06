@@ -3,7 +3,7 @@ yosys -import
 
 ## Check arguments
 if { $argc != 1 && $argc != 2 } {
-	puts "USAGE: $argv0 -- <VERILOG FILE>"
+	puts "USAGE: $argv0 -- <VERILOG FILE> \[CHIP\]"
 	exit
 }
 

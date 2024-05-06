@@ -10,7 +10,7 @@ Usage
 -----
 To synthesize a Verilog file:
 ```
-./synth_gal.tcl <VERILOG_FILE> [CHIP]
+./synth_gal.tcl -- <VERILOG_FILE> [CHIP]
 ```
 Where `[CHIP]` is either `GAL16V8` (default) or `GAL22V10`. The synthesized
 JSON netlist will be put in `output/`.
