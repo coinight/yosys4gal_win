@@ -3,7 +3,8 @@ _yosys4gal_: Verilog Flow for the GAL16V8 and GAL22V10
 
 A Verilog flow for GAL16V8 and GAL22V10 logic chips
 (and pin-compatible alternatives like the ATF16V8 and ATF22V10).
-It leverages [Yosys](github.com/YosysHQ/yosys) and [Galette](github.com/simon-frankau/galette).
+It leverages [Yosys](https://www.github.com/YosysHQ/yosys)
+and [Galette](https://www.github.com/simon-frankau/galette).
 
 Usage
 -----
