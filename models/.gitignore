@@ -1,4 +1,5 @@
 a.out
 dump.vcd
-GAL16V8_reg.bin
 GAL16V8_reg.hex
+GAL22V10_reg.hex
+__temp.bin
