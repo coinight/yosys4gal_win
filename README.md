@@ -21,7 +21,8 @@ first build the Rust compiler `ver2gal` (see the `compiler/` directory) and run:
 ./ver2gal synth <JSON NETLIST> <PCF_CONSTRAINTS> --chip <CHIP>
 ```
 Where `<CHIP>` is either `gal16v8` or `gal22v10`. The generate JEDEC file will
-be generated in the current directory as `output.jed`.
+be generated in the current directory as `output.jed`. Note this program _must_
+be run in the same directory as the `shrink_sop.tcl` script
 
 This JEDEC file can be optionally be verified programmatically using the
 scripts and Verilog models found the `models/` directory. 
