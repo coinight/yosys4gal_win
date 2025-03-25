@@ -16,7 +16,7 @@ In Windows
 4.in the shell window:Input below  
 ```
 yosys -c .\GAL_LIB\synth_gal.tcl -- {YourFile.V}  
-#eg. yosys -c .\GAL_LIB\synth_gal.tcl C:\Users\admin\Downloads\yosys4gal-master\testcases\test.v  
+#eg. yosys -c .\GAL_LIB\synth_gal.tcl -- C:\Users\admin\Downloads\yosys4gal-master\testcases\test.v  
 ```
 Old : Fork From yosys4gal only on linux 
 ------
