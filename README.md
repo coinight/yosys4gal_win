@@ -8,6 +8,18 @@ and [Galette](https://www.github.com/simon-frankau/galette).
 
 Usage
 -----
+In Windows
+------
+1.install oss-cad-suite  
+2.copy folder "GAL_LIB" to "oss-cad-suite" folder inside  
+3.open start.bat  
+4.in the shell window:Input below  
+```
+yosys -c .\GAL_LIB\synth_gal.tcl -- {YourFile.V}  
+#eg. yosys -c .\GAL_LIB\synth_gal.tcl C:\Users\admin\Downloads\yosys4gal-master\testcases\test.v  
+```
+Old : Fork From yosys4gal only on linux 
+------
 To synthesize a Verilog file:
 ```
 ./synth_gal.tcl -- <VERILOG_FILE> [CHIP]
