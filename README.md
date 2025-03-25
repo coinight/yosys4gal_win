@@ -10,7 +10,7 @@ Usage
 -----
 In Windows
 ------
-1.install oss-cad-suite  
+1.install [oss-cad-suite](https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2025-03-24/oss-cad-suite-windows-x64-20250324.exe)
 2.copy folder "GAL_LIB" to "oss-cad-suite" folder inside  
 3.open start.bat  
 4.in the shell window:Input below  
